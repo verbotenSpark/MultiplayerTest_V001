@@ -34,6 +34,7 @@ public class GameClient {
                         int y = Integer.parseInt(parts[2]);
                         String dir = parts[3];
                         gp.remotePlayer.addSnapshot(x, y, dir);
+                        gp.remotePlayer.setPos(gp, x, y);
                     } else if (parts[0].equals("PING")) {
                         long now = System.currentTimeMillis();
                         long sent = Long.parseLong(parts[1]);

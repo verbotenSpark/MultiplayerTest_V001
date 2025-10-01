@@ -35,7 +35,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void setupGame() {
         // Connect to AWS relay server
-        client = new GameClient("13.127.141.121", 5000, this);
+        client = new GameClient("43.205.217.14", 5000, this);
         client.start();
     }
 
@@ -65,7 +65,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void update() {
         player.update();
-        remotePlayer.update();
+        remotePlayer.predictPos();
 
         // Send local player state to server
         if (client != null) {

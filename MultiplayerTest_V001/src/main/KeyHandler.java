@@ -10,7 +10,6 @@ public class KeyHandler implements KeyListener{
 	
 	public KeyHandler(GamePanel gp) {
 		this.gp = gp;	
-	
 	}
 	
 	@Override

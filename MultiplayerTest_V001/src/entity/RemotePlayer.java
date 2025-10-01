@@ -3,11 +3,10 @@ package entity;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.LinkedList;
-
 import main.GamePanel;
 
 public class RemotePlayer extends Entity {
-    private static class Snapshot {
+    static class Snapshot {
         long time;
         int x, y;
         String dir;
@@ -29,13 +28,19 @@ public class RemotePlayer extends Entity {
         super(gp);
         this.gp = gp;
     }
+    int worldX,worldY;
+    
+    public void setPos(GamePanel gp,int x,int y) {
+    	worldX = x;
+    	worldY = y;
+    }
 
     public void addSnapshot(int x, int y, String dir) {
         history.add(new Snapshot(System.currentTimeMillis(), x, y, dir));
         if (history.size() > 20) history.removeFirst();
     }
 
-    public void update() {
+    public void predictPos() {
         long renderTime = System.currentTimeMillis() - bufferDelay;
 
         if (history.size() >= 2) {
@@ -57,8 +62,11 @@ public class RemotePlayer extends Entity {
             }
         }
     }
-
+    
+    Color realPosColor = new Color(0,0,255,128);
     public void draw(Graphics2D g2) {
+    	g2.setColor(realPosColor);
+        g2.fillRect(worldX, worldY, 48, 48);
         g2.setColor(Color.red);
         g2.fillRect((int) renderX, (int) renderY, 48, 48);
     }
