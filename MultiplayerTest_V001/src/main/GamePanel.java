@@ -1,10 +1,12 @@
 package main;
-//testing Fetch in local
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.JPanel;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 import entity.Player;
 import entity.RemotePlayer;
@@ -20,7 +22,9 @@ public class GamePanel extends JPanel implements Runnable {
 
     KeyHandler keyH = new KeyHandler(this);
     public Player player = new Player(this, keyH);
-    public RemotePlayer remotePlayer = new RemotePlayer(this);
+
+    // store multiple remote players
+    public Map<String, RemotePlayer> remotePlayers = new ConcurrentHashMap<>();
 
     Thread gameThread;
     GameClient client;
@@ -34,8 +38,7 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void setupGame() {
-        // Connect to AWS relay server
-        client = new GameClient("43.205.217.14", 5000, this);
+        client = new GameClient("65.2.187.142", 5000, this);
         client.start();
     }
 
@@ -65,11 +68,14 @@ public class GamePanel extends JPanel implements Runnable {
 
     public void update() {
         player.update();
-        remotePlayer.predictPos();
 
-        // Send local player state to server
+        // update all remote players
+//        for (RemotePlayer rp : remotePlayers.values()) {
+//            rp.predictPos();
+//        }
+
         if (client != null) {
-            client.sendPlayerUpdate(player.worldX, player.worldY,player.direction);
+            client.sendPlayerUpdate(player.worldX, player.worldY, player.direction);
         }
     }
 
@@ -77,8 +83,10 @@ public class GamePanel extends JPanel implements Runnable {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
+        for (RemotePlayer rp : remotePlayers.values()) {
+            rp.draw(g2);
+        }
         player.draw(g2);
-        remotePlayer.draw(g2);
 
         g2.dispose();
     }

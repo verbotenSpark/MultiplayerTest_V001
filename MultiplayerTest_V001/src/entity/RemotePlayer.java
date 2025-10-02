@@ -22,19 +22,20 @@ public class RemotePlayer extends Entity {
     private float renderX, renderY;
     private String renderDir = "down";
 
-    private final long bufferDelay = 200;  // 100 ms buffer
+    private final long bufferDelay = 200;
 
     public RemotePlayer(GamePanel gp) {
         super(gp);
         this.gp = gp;
     }
+
     int worldX,worldY;
     
     public void setPos(GamePanel gp,int x,int y) {
     	worldX = x;
     	worldY = y;
     }
-
+    
     public void addSnapshot(int x, int y, String dir) {
         history.add(new Snapshot(System.currentTimeMillis(), x, y, dir));
         if (history.size() > 20) history.removeFirst();
@@ -62,12 +63,13 @@ public class RemotePlayer extends Entity {
             }
         }
     }
-    
+
     Color realPosColor = new Color(0,0,255,128);
+
     public void draw(Graphics2D g2) {
-    	g2.setColor(realPosColor);
-        g2.fillRect(worldX, worldY, 48, 48);
-        g2.setColor(Color.red);
-        g2.fillRect((int) renderX, (int) renderY, 48, 48);
+        g2.setColor(realPosColor);
+        g2.fillRect(worldX,worldY, gp.tileSize, gp.tileSize);
+//        g2.setColor(Color.red);
+//        g2.drawString(renderDir, (int) renderX, (int) renderY - 5);
     }
 }

@@ -2,13 +2,17 @@ package net;
 
 import java.io.*;
 import java.net.*;
+import java.util.UUID;
 import main.GamePanel;
+import entity.RemotePlayer;
 
 public class GameClient {
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
     private GamePanel gp;
+
+    private String playerID = UUID.randomUUID().toString();
 
     public GameClient(String host, int port, GamePanel gp) {
         this.gp = gp;
@@ -23,18 +27,27 @@ public class GameClient {
     }
 
     public void start() {
-        // Listen for server updates
         new Thread(() -> {
             String line;
             try {
                 while ((line = in.readLine()) != null) {
                     String[] parts = line.split(",");
                     if (parts[0].equals("POS")) {
-                        int x = Integer.parseInt(parts[1]);
-                        int y = Integer.parseInt(parts[2]);
-                        String dir = parts[3];
-                        gp.remotePlayer.addSnapshot(x, y, dir);
-                        gp.remotePlayer.setPos(gp, x, y);
+                        String id = parts[1];
+                        int x = Integer.parseInt(parts[2]);
+                        int y = Integer.parseInt(parts[3]);
+                        String dir = parts[4];
+
+                        if (id.equals(playerID)) continue;
+
+                        RemotePlayer rp = gp.remotePlayers.get(id);
+                        if (rp == null) {
+                            rp = new RemotePlayer(gp);
+                            gp.remotePlayers.put(id, rp);
+                        }
+//                        rp.addSnapshot(x, y, dir);
+                        rp.setPos(gp,x, y);
+
                     } else if (parts[0].equals("PING")) {
                         long now = System.currentTimeMillis();
                         long sent = Long.parseLong(parts[1]);
@@ -46,7 +59,6 @@ public class GameClient {
             }
         }).start();
 
-        // Ping loop
         new Thread(() -> {
             try {
                 while (true) {
@@ -60,8 +72,8 @@ public class GameClient {
         }).start();
     }
 
-    public void sendPlayerUpdate(int x, int y,String dir) {
-        sendMessage("POS," + x + "," + y+","+dir);
+    public void sendPlayerUpdate(int x, int y, String dir) {
+        sendMessage("POS," + playerID + "," + x + "," + y + "," + dir);
     }
 
     private void sendMessage(String msg) {
